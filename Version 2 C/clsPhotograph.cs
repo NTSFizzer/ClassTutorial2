@@ -9,14 +9,13 @@ namespace Version_2_C
         private float _Height;
         private string _Type;
 
-        [NonSerialized()]
-        private frmPhotograph _PhotoDialog;
+        //definition of a delegate (shared variable)
+        public delegate void LoadFormPhotographDelegate(clsPhotograph prPhotograph);
+        public static LoadFormPhotographDelegate LoadPhotographForm;
 
         public override void EditDetails()
         {
-            if (_PhotoDialog == null)
-                _PhotoDialog = new frmPhotograph();
-            _PhotoDialog.SetDetails(this);
+            LoadPhotographForm(this);
         }
 
         public Single Width

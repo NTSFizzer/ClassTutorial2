@@ -3,16 +3,35 @@ using System.Windows.Forms;
 
 namespace Version_2_C
 {
-    public partial class frmMain : Form
+    public sealed partial class frmMain : Form
     {
-        public frmMain()
+        private frmMain()
         {
+            //private constructor. now following the Singleton pattern
             InitializeComponent();
         }
 
+        private static frmMain _instance = new frmMain();
+        //public static readonly frmMain _instance = new frmMain(); //this would crash the program if made public -- see Program.cs 
+
+        public delegate void Notify(string prGalleryName); //public delegate to change the Gallery Name in clsArtist
+        public event Notify GalleryNameChanged;            //public event - tell everyone!
         private clsArtistList _ArtistList = new clsArtistList();
 
-        private void updateDisplay()
+        public static frmMain Instance
+        {
+            //Public Property for the Form to Instantiate
+            //this is added as the constructor was made private
+            get { return _instance; }
+        }
+
+        private void UpdateTitle(string prGalleryName)
+        {
+            if (!string.IsNullOrEmpty(prGalleryName))
+                Text = "Gallery - " + prGalleryName;
+        }
+
+        public void UpdateDisplay()
         {
             lstArtists.DataSource = null;
             string[] lcDisplayList = new string[_ArtistList.Count];
@@ -25,9 +44,7 @@ namespace Version_2_C
         {
             try
             {
-                _ArtistList.NewArtist();
-                MessageBox.Show("Artist added!", "Success");
-                updateDisplay();
+                frmArtist.Run(new clsArtist(_ArtistList));
             }
             catch (Exception ex)
             {
@@ -43,8 +60,7 @@ namespace Version_2_C
             if (lcKey != null)
                 try
                 {
-                    _ArtistList.EditArtist(lcKey);
-                    updateDisplay();
+                    frmArtist.Run((_ArtistList[lcKey]));
                 }
                 catch (Exception ex)
                 {
@@ -75,7 +91,7 @@ namespace Version_2_C
                 {
                     _ArtistList.Remove(lcKey);
                     lstArtists.ClearSelected();
-                    updateDisplay();
+                    UpdateDisplay();
 
                 }
                 catch (Exception ex)
@@ -89,13 +105,30 @@ namespace Version_2_C
             try
             {
                 _ArtistList = clsArtistList.RetrieveArtistList();
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "File retrieve error");
             }
-            updateDisplay();
+            GalleryNameChanged += new Notify(UpdateTitle);
+            GalleryNameChanged(_ArtistList.GalleryName); //event raising :)
+            UpdateDisplay();
+        }
+
+        private void btnGalleryName_Click(object sender, EventArgs e)
+        {
+            string lcReply = new InputBox("Change the gallery name:   " + _ArtistList.GalleryName).Answer;
+            if (!string.IsNullOrEmpty(lcReply))
+            {
+                _ArtistList.GalleryName = lcReply;
+                GalleryNameChanged(lcReply);
+            }
+
+        }
+
+        private void btnGalleryName_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

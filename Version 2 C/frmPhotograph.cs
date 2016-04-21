@@ -1,10 +1,19 @@
 namespace Version_2_C
 {
-    public partial class frmPhotograph : Version_2_C.frmWork
+    public sealed partial class frmPhotograph : Version_2_C.frmWork
     {
-        public frmPhotograph()
+        private frmPhotograph()
         {
             InitializeComponent();
+        }
+
+        public static readonly frmPhotograph Instance = new frmPhotograph();
+
+        public static void Run(clsPhotograph prPhotograph)
+        //note Run can be called anything
+        //voud Run (clsPhotograph prPhotograph) is the method's signature.
+        {
+            Instance.SetDetails(prPhotograph);
         }
 
         protected override void updateForm()

@@ -10,12 +10,12 @@ namespace Version_2_C
         private string _Speciality;
         private string _Phone;
 
-        private decimal _TotalValue;
+        //private decimal _TotalValue;
 
         private clsWorksList _WorksList;
         private clsArtistList _ArtistList;
 
-        private static frmArtist _ArtistDialog = new frmArtist();
+        private string _ArtistName;
 
         public clsArtist() { }
 
@@ -23,18 +23,20 @@ namespace Version_2_C
         {
             _WorksList = new clsWorksList();
             _ArtistList = prArtistList;
-            EditDetails();
-        }
-
-        public void EditDetails()
-        {
-            _ArtistDialog.SetDetails(this);
-            _TotalValue = _WorksList.GetTotalValue();
+            // EditDetails(); //no longer required
         }
 
         public bool IsDuplicate(string prArtistName)
         {
-            return _ArtistList.ContainsKey(prArtistName);
+            return ArtistList.ContainsKey(prArtistName);
+        }
+
+        public void NewArtist()
+        {
+            if (!string.IsNullOrEmpty(Name))
+                ArtistList.Add(Name, this);
+            else
+                throw new Exception("No artist name entered");
         }
 
         public string Name
@@ -57,12 +59,17 @@ namespace Version_2_C
 
         public decimal TotalValue
         {
-            get { return _TotalValue; }
+            get { return _WorksList.GetTotalValue(); }
         }
 
         public clsWorksList WorksList
         {
             get { return _WorksList; }
+        }
+
+        public clsArtistList ArtistList
+        {
+            get { return _ArtistList; }
         }
     }
 }

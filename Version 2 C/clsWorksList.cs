@@ -6,8 +6,8 @@ namespace Version_2_C
     [Serializable()]
     public class clsWorksList : List<clsWork>
     {
-        private static clsNameComparer _NameComparer = new clsNameComparer();
-        private static clsDateComparer _DateComparer = new clsDateComparer();
+        //private static clsNameComparer _NameComparer = clsNameComparer.Instance;
+        //private static readonly clsDateComparer _DateComparer = new clsDateComparer();
         private byte _SortOrder;
 
         public void AddWork(char prChoice)
@@ -40,15 +40,15 @@ namespace Version_2_C
             return lcTotal;
         }
 
-        public void SortByName()
+        public void SortByName() //lazy and singleton pattern
         {
-            Sort(_NameComparer);
+            Sort(clsNameComparer.Instance);
             _SortOrder = 0;
         }
 
         public void SortByDate()
         {
-            Sort(_DateComparer);
+            Sort(clsDateComparer.Instance);
             _SortOrder = 1;
         }
 

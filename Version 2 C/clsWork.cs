@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Version_2_C
 {
     [Serializable()]
-    public abstract class clsWork 
+    public abstract class clsWork
     {
 
         private string _Name;

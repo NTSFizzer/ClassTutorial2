@@ -1,20 +1,46 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Version_2_C
 {
     public partial class frmArtist : Form
     {
+        private clsArtist _Artist;
+        private clsWorksList _WorksList;
+
+        //Dictionary to enable display of more than one artist form at the same time
+        //this container helps hold several forms
+        private static Dictionary<clsArtist, frmArtist> _ArtistFormList = new Dictionary<clsArtist, frmArtist>();
+
         public frmArtist()
         {
             InitializeComponent();
         }
 
-        private clsArtist _Artist;
-        private clsWorksList _WorksList;
+        public static void Run(clsArtist prArtist)
+        {
+            frmArtist lcArtistForm;
+            if (!_ArtistFormList.TryGetValue(prArtist, out lcArtistForm))
+            {
+                lcArtistForm = new frmArtist();
+                _ArtistFormList.Add(prArtist, lcArtistForm);
+                lcArtistForm.SetDetails(prArtist);
+            }
+            else
+            {
+                lcArtistForm.Show();
+                lcArtistForm.Activate();
+            }
+        }
 
+        private void updateTitle(string prGalleryName)
+        {
+            if (!string.IsNullOrEmpty(prGalleryName))
+                Text = "Artist Details - " + prGalleryName;
+        }
 
-        private void updateDisplay()
+        private void UpdateDisplay()
         {
             txtName.Enabled = txtName.Text == "";
             if (_WorksList.SortOrder == 0)
@@ -36,9 +62,12 @@ namespace Version_2_C
         public void SetDetails(clsArtist prArtist)
         {
             _Artist = prArtist;
+            txtName.Enabled = string.IsNullOrEmpty(_Artist.Name); //updateDisplay();
             updateForm();
-            updateDisplay();
-            ShowDialog();
+            UpdateDisplay();
+            frmMain.Instance.GalleryNameChanged += new frmMain.Notify(updateTitle);
+            updateTitle(_Artist.ArtistList.GalleryName);
+            Show();
         }
 
         private void updateForm()
@@ -56,6 +85,16 @@ namespace Version_2_C
             _Artist.Phone = txtPhone.Text;
         }
 
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            string lcReply = new InputBox(clsWork.FACTORY_PROMPT).Answer;
+            if (!string.IsNullOrEmpty(lcReply))
+            {
+                _WorksList.AddWork(lcReply[0]);
+                //UpdateDisplay();
+                frmMain.Instance.UpdateDisplay();
+            }
+        }
         private void btnDelete_Click(object sender, EventArgs e)
         {
             int lcIndex = lstWorks.SelectedIndex;
@@ -63,27 +102,30 @@ namespace Version_2_C
             if (lcIndex >= 0 && MessageBox.Show("Are you sure?", "Deleting work", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 _WorksList.RemoveAt(lcIndex);
-                updateDisplay();
-            }
-        }
-
-        private void btnAdd_Click(object sender, EventArgs e)
-        {
-            string lcReply = new InputBox(clsWork.FACTORY_PROMPT).Answer;
-            if (!string.IsNullOrEmpty(lcReply))
-            {
-                _WorksList.AddWork(lcReply[0]);
-                updateDisplay();
+                //UpdateDisplay();
+                frmMain.Instance.UpdateDisplay();
             }
         }
 
         private void btnClose_Click(object sender, EventArgs e)
         {
             if (isValid() == true)
-            {
-                pushData();
-                Close();
-            }
+                try
+                {
+                    pushData();
+                    if (txtName.Enabled)
+                    {
+                        _Artist.NewArtist();
+                        MessageBox.Show("Artist Added!", "Success");
+                        frmMain.Instance.UpdateDisplay();  //made the method public
+                        txtName.Enabled = false;   //disabled to indicate the artist exists
+                    }
+                    Hide();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Unsuccessful at adding artist" + ex.Message);
+                }
         }
 
         private Boolean isValid()
@@ -105,7 +147,8 @@ namespace Version_2_C
             try
             {
                 _WorksList.EditWork(lstWorks.SelectedIndex);
-                updateDisplay();
+                //UpdateDisplay();
+                frmMain.Instance.UpdateDisplay();
             }
             catch (Exception ex)
             {
@@ -116,7 +159,12 @@ namespace Version_2_C
         private void rbByDate_CheckedChanged(object sender, EventArgs e)
         {
             _WorksList.SortOrder = Convert.ToByte(rbByDate.Checked);
-            updateDisplay();
+            UpdateDisplay();
+        }
+
+        private void lstWorks_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

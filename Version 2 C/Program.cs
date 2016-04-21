@@ -15,7 +15,12 @@ namespace Version_2_C
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmMain());
+            clsPainting.LoadPaintingForm = new clsPainting.LoadFormPaintingDelegate(frmPainting.Run);
+            //this is the where the two agents are joined. The class and the form. now a delegate.
+            //this is responsible for the joining of the two.
+            clsPhotograph.LoadPhotographForm = new clsPhotograph.LoadFormPhotographDelegate(frmPhotograph.Run);
+            clsSculpture.LoadSculptureForm = new clsSculpture.LoadFormSculptureDelegate(frmSculpture.Run);
+            Application.Run(frmMain.Instance);
         }
     }
 }

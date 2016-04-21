@@ -10,14 +10,14 @@ namespace Version_2_C
         private string _Type;
 
 
-        [NonSerialized()]
-        private static frmPainting _PaintDialog;
+        //definition of a delegate (shared variable)
+        public delegate void LoadFormPaintingDelegate(clsPainting prPainting);
+        public static LoadFormPaintingDelegate LoadPaintingForm;
+        //these are skeletons!
 
         public override void EditDetails()
         {
-            if (_PaintDialog == null)
-                _PaintDialog = new frmPainting();
-            _PaintDialog.SetDetails(this);
+            LoadPaintingForm(this);
         }
 
         public Single Width

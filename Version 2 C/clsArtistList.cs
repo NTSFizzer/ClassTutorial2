@@ -9,21 +9,19 @@ namespace Version_2_C
     {
         private const string _FileName = "gallery.dat";
 
-        public void EditArtist(string prKey)
-        {
-            clsArtist lcArtist;
-            lcArtist = this[prKey];
-            if (lcArtist != null)
-                lcArtist.EditDetails();
-            else
-                throw new Exception("Sorry no artist by this name");
-        }
+        private string _GalleryName;
 
-        public void NewArtist()
+        public string GalleryName
         {
-            clsArtist lcArtist = new clsArtist(this);
-            if (lcArtist.Name != "")
-                Add(lcArtist.Name, lcArtist);
+            get
+            {
+                return _GalleryName;
+            }
+
+            set
+            {
+                _GalleryName = value;
+            }
         }
 
         public decimal GetTotalValue()
